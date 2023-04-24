@@ -1,0 +1,33 @@
+name: Release Notes
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+**@**'
+      - '!**snapshot**'
+
+jobs:
+  create-release-notes:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node with v16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+
+      - name: Install Dependencies for create-release-notes
+        working-directory: .github/actions/create-release-notes
+        run: yarn install --frozen-lockfile
+
+      - name: Create release notes
+        uses: ./.github/actions/create-release-notes
+        with:
+          PUSHED_TAG: ${{ github.ref }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
