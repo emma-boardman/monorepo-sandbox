@@ -1,0 +1,140 @@
+name: Snapit
+
+on:
+  issue_comment:
+    types:
+      - created
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  snapshot:
+    name: Create Snapshot Release
+    if: |
+        github.event.issue.pull_request &&
+        (github.event.comment.body == '/snapit' || github.event.comment.body == '/snapshot-release')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node with v16.13.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+
+      - name: Install Dependencies for monorepo-sandbox-github actions
+        working-directory: .github/actions
+        run: yarn install --frozen-lockfile
+
+      - name: Add initial reaction
+        uses: ./.github/actions/create-comment-reaction
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          comment-id: ${{ github.event.comment.id }}
+          reaction: eyes
+
+      # issue_comment requires us to checkout the branch
+      # https://github.com/actions/checkout/issues/331#issuecomment-1120113003
+      - name: Checkout pull request branch
+        run: hub pr checkout ${{ github.event.issue.number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if PR branch is Version Release
+        id: check_is_version_branch
+        uses: actions/github-script@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          result-encoding: string
+          script: |
+            const currentBranch = await exec.getExecOutput('git', ['branch', '--show-current']);
+
+            if (currentBranch?.stdout?.includes('changeset-release/main')) {
+              console.log('is version branch', currentBranch);
+              return true
+            } else {
+              console.log('is feature branch', currentBranch);
+               return false
+            }
+
+
+      - name: Check for Changeset
+        id: check-for-changeset
+        if: ${{ steps.check_is_version_branch.outputs.result == 'false'}}
+        continue-on-error: true
+        run: npx @changesets/cli status --since="origin/main"
+
+      - name: Create no-changeset comment if !VersionPackage PR
+        if: steps.check-for-changeset.outcome == 'failure'
+        uses: ./.github/actions/create-pr-comment
+        with: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          MESSAGE: "⚠️ **Error creating `/snapit` release** ⚠️ \n\n No changesets were found. \n\n To enable `/snapit` functionality, please add a changeset using `yarn changeset`. \n\n If you have added a changeset and are still encountering this error, please reach out in [#online-store-ui](https://shopify.slack.com/archives/CJL1EMP88)."
+
+      - name: Exit if no changeset
+        if: steps.check-for-changeset.outcome == 'failure'
+        uses: actions/github-script@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            core.setFailed('No changeset found. To enable `/snapit` functionality, please add a changeset using `yarn changeset`. \n\n If you have added a changeset and are still encountering this error, please reach out in [#online-store-ui](https://shopify.slack.com/archives/CJL1EMP88)');
+
+      # Because changeset entries are consumed and removed on the
+      # 'changeset-release/main' branch, we need to reset the files
+      # so the following 'changeset version --snapshot' command will
+      # regenerate the package version bumps with the snapshot releases
+      - name: Reset changeset entries on changeset-release/main branch
+        if: steps.check_is_version_branch.outputs.result == 'true'
+        run: |
+          git checkout origin/main -- .changeset
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Generate Snapshot version
+        id: generate-snapshot-version
+        run: npx @changesets/cli version --snapshot snapshot-release
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for Snapshot Versions
+        id: check-for-snapshot-versions
+        uses: ./.github/actions/check-snapshot-versions
+      
+      - name: Create snapshot branch with version commit
+        id: create-snapshot-branch
+        if: ${{ steps.check-for-snapshot-versions.outputs.HAS_SNAPSHOTS}}
+        continue-on-error: true
+        uses: ./.github/actions/create-snapshot-branch
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}  
+
+      - name: Create branch-failure comment
+        if: ${{ !steps.check-for-snapshot-versions.outputs.HAS_SNAPSHOTS || steps.create-snapshot-branch.outcome == 'failure' }}
+        uses: ./.github/actions/create-pr-comment
+        with: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          MESSAGE: "⚠️ **Error creating snapshot branch** ⚠️ \n\n Please reach out in [#online-store-ui](https://shopify.slack.com/archives/CJL1EMP88)."
+
+      - name: Create snapshot comment
+        if: ${{ steps.check-for-snapshot-versions.outputs.SNAPSHOT_RELEASES && steps.create-snapshot-branch.outcome == 'success'  }}
+        uses: ./.github/actions/create-snapshot-comment
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          SNAPSHOTS: ${{ steps.check-for-snapshot-versions.outputs.SNAPSHOT_RELEASES }}
+  
+      - name: Add rocket reaction
+        if: ${{ steps.check-for-snapshot-versions.outputs.SNAPSHOT_RELEASES && steps.create-snapshot-branch.outcome == 'success'  }}
+        uses: ./.github/actions/create-comment-reaction
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          comment-id: ${{ github.event.comment.id }}
+          reaction: rocket
