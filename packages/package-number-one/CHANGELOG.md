@@ -1,5 +1,11 @@
 # @mini-monorepo/package-number-one
 
+## 3.0.2
+
+### Patch Changes
+
+- [#7](https://github.com/emma-boardman/monorepo-sandbox/pull/7) [`b460536`](https://github.com/emma-boardman/monorepo-sandbox/commit/b460536c4588be237d7e37fe31611481f2813dd7) Thanks [@emma-boardman](https://github.com/emma-boardman)! - Removed 2nd button
+
 ## 3.0.1
 
 ### Patch Changes
