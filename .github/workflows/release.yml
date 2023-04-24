@@ -1,0 +1,40 @@
+name: Create Version Package PR
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  run-changesets:
+    name: Run changeset actions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: yarn
+
+      - name: Install Dependencies for monorepo-sandbox-github-actions
+        working-directory: .github/actions
+        run: yarn install --frozen-lockfile
+
+      - name: Install changeset cli
+        run: yarn install --frozen-lockfile
+
+      - name: Generate changelog and update versions
+        run: npx @changesets/cli version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create or update Release PR
+        id: create_update_release_branch
+        uses: ./.github/actions/create-update-release-pr-action
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
