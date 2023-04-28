@@ -120,6 +120,8 @@ async function createVersionCommit(octokit, branch, currentCommitSha) {
     );
 
 
+    console.log('newtree', newtree);
+
     const newCommit = await createNewCommit(
       octokit,
       'Snapshot release',
@@ -134,7 +136,7 @@ async function createVersionCommit(octokit, branch, currentCommitSha) {
     //   ...github.context.repo,
     // }).data;
 
-    // console.log('newcommit', newcommit);
+    console.log('newcommit', newcommit);
 
     await setBranchToCommit(octokit, branch, newCommit.sha);
   }
@@ -154,7 +156,6 @@ const createNewCommit = async (
       ...github.context.repo,
     })
   ).data;
-
 
 
 const createBlobForFile = (octokit) => async (fileName) => {
