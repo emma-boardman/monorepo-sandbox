@@ -30,6 +30,8 @@ async function main() {
 
     const {branch, sha} = branchDetails;
 
+    console.log('branch Details', branchDetails);
+
     // Commit an updated version file to the snapshot branch
     await createVersionCommit(octokit, branch, sha);
 
@@ -101,6 +103,10 @@ async function createVersionCommit(octokit, branch, currentCommitSha) {
       ...github.context.repo,
       commit_sha: currentCommitSha,
     });
+
+    console.log('currentSha', currentCommitSha);
+
+    console.log('commitData', commitData);
 
     const currentCommitTreeSha = commitData.tree.sha;
 
