@@ -30,6 +30,8 @@ async function main() {
 
     const {branch, sha} = branchDetails;
 
+    console.log('branch Details', branchDetails);
+
     // Commit an updated version file to the snapshot branch
     await createVersionCommit(octokit, branch, sha);
 
@@ -102,6 +104,12 @@ async function createVersionCommit(octokit, branch, currentCommitSha) {
       commit_sha: currentCommitSha,
     });
 
+    console.log('currentSha', currentCommitSha);
+
+    console.log('commitData', commitData);
+    console.log('commitDataTree', commitData.tree);
+    console.log('commitDataSha', commitData.tree.sha);
+
     const currentCommitTreeSha = commitData.tree.sha;
 
     core.info('✅ Retrived commit tree SHA', currentCommitTreeSha);
@@ -118,10 +126,6 @@ async function createVersionCommit(octokit, branch, currentCommitSha) {
       versionFiles,
       currentCommitTreeSha,
     );
-
-
-    console.log('newtree', newtree);
-
     const newCommit = await createNewCommit(
       octokit,
       'Snapshot release',
@@ -129,33 +133,21 @@ async function createVersionCommit(octokit, branch, currentCommitSha) {
       currentCommitSha,
     );
 
-    // const newCommit = await octokit.rest.git.createCommit({
-    //   message: 'Snapshot release',
-    //   tree: newTree.sha,
-    //   parents: [currentCommitSha],
-    //   ...github.context.repo,
-    // }).data;
 
-    console.log('newcommit', newcommit);
 
     await setBranchToCommit(octokit, branch, newCommit.sha);
   }
 }
 
-const createNewCommit = async (
-  octokit,
-  message,
-  currentTreeSha,
-  currentCommitSha,
-) =>
-  (
-    await octokit.rest.git.createCommit({
-      message,
-      tree: currentTreeSha,
-      parents: [currentCommitSha],
-      ...github.context.repo,
-    })
-  ).data;
+async function createNewCommit(octokit, message, currentTreeSha, currentCommitSha) {
+  const commitData = await octokit.rest.git.createCommit({
+    message,
+    tree: currentTreeSha,
+    parents: [currentCommitSha],
+    ...github.context.repo,
+  });
+  return commitData.data;
+}
 
 
 const createBlobForFile = (octokit) => async (fileName) => {
