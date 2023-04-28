@@ -119,29 +119,19 @@ async function createVersionCommit(octokit, branch, currentCommitSha) {
       currentCommitTreeSha,
     );
 
-    const newCommit = await createNewCommit(
-      octokit,
-      'Snapshot release',
-      newTree.sha,
-      currentCommitSha,
-    );
+    const newCommit = await octokit.rest.git.createCommit({
+      message: 'Snapshot release',
+      tree: newTree.sha,
+      parents: [currentCommitSha],
+      ...github.context.repo,
+    }).data;
+
+    console.log('newcommit', newcommit);
+  
     await setBranchToCommit(octokit, branch, newCommit.sha);
   }
 }
 
-async function createNewCommit(
-  octokit,
-  message,
-  currentTreeSha,
-  currentCommitSha,
-) {
-  await octokit.rest.git.createCommit({
-    message,
-    tree: currentTreeSha,
-    parents: [currentCommitSha],
-    ...github.context.repo,
-  }).data;
-}
 
 const createBlobForFile = (octokit) => async (fileName) => {
   const content = await fs.readFileSync(fileName).toString();
