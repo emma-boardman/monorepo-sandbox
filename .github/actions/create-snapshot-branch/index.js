@@ -23,7 +23,7 @@ const octokit = github.getOctokit(token);
  * https://github.com/Shopify/github-actions
  */
 
- const main = async () => {
+async function main() {
   try {
     // Create the snapshot branch, using the source branch name and last commit sha
     const branchDetails = await createReleaseBranch(octokit);
@@ -126,10 +126,6 @@ async function createVersionCommit(octokit, branch, currentCommitSha) {
       versionFiles,
       currentCommitTreeSha,
     );
-
-
-    console.log('newtree', newTree);
-
     const newCommit = await createNewCommit(
       octokit,
       'Snapshot release',
@@ -137,33 +133,21 @@ async function createVersionCommit(octokit, branch, currentCommitSha) {
       currentCommitSha,
     );
 
-    // const newCommit = await octokit.rest.git.createCommit({
-    //   message: 'Snapshot release',
-    //   tree: newTree.sha,
-    //   parents: [currentCommitSha],
-    //   ...github.context.repo,
-    // }).data;
 
-    console.log('newcommit', newCommit);
 
     await setBranchToCommit(octokit, branch, newCommit.sha);
   }
 }
 
-const createNewCommit = async (
-  octokit,
-  message,
-  currentTreeSha,
-  currentCommitSha,
-) =>
-  (
-    await octokit.rest.git.createCommit({
-      message,
-      tree: currentTreeSha,
-      parents: [currentCommitSha],
-      ...github.context.repo,
-    })
-  ).data;
+async function createNewCommit(octokit, message, currentTreeSha, currentCommitSha) {
+  const commitData = await octokit.rest.git.createCommit({
+    message,
+    tree: currentTreeSha,
+    parents: [currentCommitSha],
+    ...github.context.repo,
+  });
+  return commitData.data;
+}
 
 
 const createBlobForFile = (octokit) => async (fileName) => {
