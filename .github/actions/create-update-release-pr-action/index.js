@@ -5,7 +5,7 @@ const github = require('@actions/github');
 const fs = require('fs');
 const {createPullRequest} = require('octokit-plugin-create-pull-request');
 
-const main = async () => {
+async function main() {
   const context = github.context;
   const token = core.getInput('GITHUB_TOKEN');
 
@@ -50,7 +50,7 @@ const main = async () => {
       '⛔ No Version files found. Exiting without creating a Version Package PR.',
     );
   }
-};
+}
 
 async function getUncomittedVersionFiles() {
   // output returns a string, with each file name and status seperated by linebreaks.
@@ -89,7 +89,7 @@ function getFileContentForCommit(versionFiles) {
     // Otherwise, capture local file changes for commit
     return {
       ...obj,
-      [name]: status === 'D' ? null : getFileContent(name),
+      [name]: status.includes('D') ? null : getFileContent(name),
     };
   }, {});
 

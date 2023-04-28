@@ -7,58 +7,78 @@ const token = core.getInput('GITHUB_TOKEN');
 const issue = core.getInput('ISSUE');
 const octokit = github.getOctokit(token);
 
-const main = async () => {
+/**
+ * This GitHub actions function allows us to create a branch containing Commits from the source `/snapit` PR, and a snapshot version number
+ *
+ * The new branch is required to trigger a BuildKite pipeline that will publish the snapshot release.
+ *
+ * The action does 3 things:
+ * 1. Creates the snapshot branch, using the source branch name and last commit sha
+ * 2. Captures the version update created by `changeset version` earlier in the workflow
+ * 3. Commits the updated version file to the snapshot branch
+ *
+ * Shopify does not allow the use of unverified third party GitHub actions in private repositories. This is why we have to write our own.
+
+ * In the future, we should write this function in Typescript and add it to Shopify's github actions repo.
+ * https://github.com/Shopify/github-actions
+ */
+
+async function main() {
   try {
+    // Create the snapshot branch, using the source branch name and last commit sha
     const branchDetails = await createReleaseBranch(octokit);
 
     const {branch, sha} = branchDetails;
 
+    // Commit an updated version file to the snapshot branch
     await createVersionCommit(octokit, branch, sha);
 
     core.setOutput('SNAPSHOT_BRANCH_REF', branch.replace('refs/', ''));
   } catch (err) {
     core.setFailed(`Failed to create snapshot branch and commit: ${err}`);
   }
-};
+}
 
 async function createReleaseBranch(octokit) {
-  // Get PR information
+  // Get source PR information
   const {data} = await octokit.rest.pulls.get({
     pull_number: issue,
     ...github.context.repo,
   });
 
-  // Get branch information
-  let branch = data.head.ref;
-  branch = branch.replace('refs/heads/', '');
+  // Get source branch information
+  const branch = data.head.ref.replace('refs/heads/', '');
   const lastCommit = data.head.sha;
+
+  // Use source branch information to create snapshot branch information
   const snapshotBranch = `refs/heads/snapshot-release/${branch}`;
   const snapshotRef = `heads/snapshot-release/${branch}`;
 
-  // Check if branch exists
+  // Check if a snapshot branch already exists for this PR
   try {
     await octokit.rest.repos.getBranch({
       ...github.context.repo,
       branch: snapshotBranch,
     });
 
-    // if branch exists, delete and recreate with latest commit
+    // if a snapshot branch exists, delete and recreate with latest commit
     await octokit.rest.git.deleteRef({
       ref: snapshotRef,
       ...github.context.repo,
     });
 
-    return await createBranchRef(snapshotBranch, lastCommit);
+    return createBranchRef(snapshotBranch, lastCommit);
   } catch (error) {
-    // if branch does not exist, create new branch with the latest commit
+    // if a snapshot branch does not exist, create new branch with the latest commit
     if (error.name === 'HttpError' && error.status === 404) {
-      return await createBranchRef(snapshotBranch, lastCommit);
+      return createBranchRef(snapshotBranch, lastCommit);
     } else {
       throw Error(error);
     }
   }
 }
 
+// Creates a snapshot branch that mirrors the source branch
 async function createBranchRef(snapshotBranch, lastCommit) {
   await octokit.rest.git.createRef({
     ref: snapshotBranch,
@@ -69,6 +89,7 @@ async function createBranchRef(snapshotBranch, lastCommit) {
   return {branch: snapshotBranch, sha: lastCommit};
 }
 
+// Commit the updated version file to the snapshot branch
 async function createVersionCommit(octokit, branch, currentCommitSha) {
   const versionFiles = await getUncomittedPackageVersionFiles();
 
@@ -108,20 +129,19 @@ async function createVersionCommit(octokit, branch, currentCommitSha) {
   }
 }
 
-const createNewCommit = async (
+async function createNewCommit(
   octokit,
   message,
   currentTreeSha,
   currentCommitSha,
-) =>
-  (
-    await octokit.rest.git.createCommit({
-      message,
-      tree: currentTreeSha,
-      parents: [currentCommitSha],
-      ...github.context.repo,
-    })
-  ).data;
+) {
+  await octokit.rest.git.createCommit({
+    message,
+    tree: currentTreeSha,
+    parents: [currentCommitSha],
+    ...github.context.repo,
+  }).data;
+}
 
 const createBlobForFile = (octokit) => async (fileName) => {
   const content = await fs.readFileSync(fileName).toString();
