@@ -23,7 +23,7 @@ const octokit = github.getOctokit(token);
  * https://github.com/Shopify/github-actions
  */
 
-async function main() {
+ const main = async () => {
   try {
     // Create the snapshot branch, using the source branch name and last commit sha
     const branchDetails = await createReleaseBranch(octokit);
