@@ -128,7 +128,7 @@ async function createVersionCommit(octokit, branch, currentCommitSha) {
     );
 
 
-    console.log('newtree', newtree);
+    console.log('newtree', newTree);
 
     const newCommit = await createNewCommit(
       octokit,
@@ -144,7 +144,7 @@ async function createVersionCommit(octokit, branch, currentCommitSha) {
     //   ...github.context.repo,
     // }).data;
 
-    console.log('newcommit', newcommit);
+    console.log('newcommit', newCommit);
 
     await setBranchToCommit(octokit, branch, newCommit.sha);
   }
