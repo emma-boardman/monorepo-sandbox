@@ -107,6 +107,8 @@ async function createVersionCommit(octokit, branch, currentCommitSha) {
     console.log('currentSha', currentCommitSha);
 
     console.log('commitData', commitData);
+    console.log('commitDataTree', commitData.tree);
+    console.log('commitDataSha', commitData.tree.sha);
 
     const currentCommitTreeSha = commitData.tree.sha;
 
