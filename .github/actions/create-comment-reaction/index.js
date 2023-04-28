@@ -1,8 +1,7 @@
-
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-const main = async () => {
+async function main() {
   const token = core.getInput('GITHUB_TOKEN');
   const commentId = core.getInput('comment-id');
   const reaction = core.getInput('reaction');
@@ -14,6 +13,6 @@ const main = async () => {
     content: reaction,
     ...github.context.repo,
   });
-};
+}
 
 main().catch((err) => core.setFailed(err.message));
