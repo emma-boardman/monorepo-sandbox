@@ -1,5 +1,11 @@
 # @mini-monorepo/package-number-two
 
+## 0.0.0-snapshot-release-20230502094900
+
+### Minor Changes
+
+- [#12](https://github.com/emma-boardman/monorepo-sandbox/pull/12) [`92b5862`](https://github.com/emma-boardman/monorepo-sandbox/commit/92b5862da0ff1f9e0ae542dbedaed4bc8dacd846) Thanks [@emma-boardman](https://github.com/emma-boardman)! - More buttons
+
 ## 4.6.1
 
 ### Patch Changes
