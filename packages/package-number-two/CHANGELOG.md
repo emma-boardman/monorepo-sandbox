@@ -1,5 +1,11 @@
 # @mini-monorepo/package-number-two
 
+## 4.8.0
+
+### Minor Changes
+
+- [#19](https://github.com/emma-boardman/monorepo-sandbox/pull/19) [`caf3bb1`](https://github.com/emma-boardman/monorepo-sandbox/commit/caf3bb1c9662db7b297f0c8914b1e981a55a1314) Thanks [@emma-boardman](https://github.com/emma-boardman)! - Remove buttons
+
 ## 4.7.0
 
 ### Minor Changes
