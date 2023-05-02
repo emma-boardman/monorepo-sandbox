@@ -1,5 +1,19 @@
 # @mini-monorepo/package-number-two
 
+## 4.7.0
+
+### Minor Changes
+
+- [#17](https://github.com/emma-boardman/monorepo-sandbox/pull/17) [`504ab6f`](https://github.com/emma-boardman/monorepo-sandbox/commit/504ab6fc51f511d86f0a866615c570ee86b324b5) Thanks [@emma-boardman](https://github.com/emma-boardman)! - Change
+
+- [#18](https://github.com/emma-boardman/monorepo-sandbox/pull/18) [`a0cf57a`](https://github.com/emma-boardman/monorepo-sandbox/commit/a0cf57aca102a9fa9ea9ad85fb9b19469ec61e61) Thanks [@emma-boardman](https://github.com/emma-boardman)! - Change
+
+- [#12](https://github.com/emma-boardman/monorepo-sandbox/pull/12) [`92b5862`](https://github.com/emma-boardman/monorepo-sandbox/commit/92b5862da0ff1f9e0ae542dbedaed4bc8dacd846) Thanks [@emma-boardman](https://github.com/emma-boardman)! - More buttons
+
+### Patch Changes
+
+- [#14](https://github.com/emma-boardman/monorepo-sandbox/pull/14) [`26d8e65`](https://github.com/emma-boardman/monorepo-sandbox/commit/26d8e650e996dd2be855e302b443bbeae7de4448) Thanks [@emma-boardman](https://github.com/emma-boardman)! - Improve PR description for multi-package
+
 ## 4.6.1
 
 ### Patch Changes

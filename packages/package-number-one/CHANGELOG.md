@@ -1,5 +1,15 @@
 # @mini-monorepo/package-number-one
 
+## 3.1.0
+
+### Minor Changes
+
+- [#16](https://github.com/emma-boardman/monorepo-sandbox/pull/16) [`ecbf8c5`](https://github.com/emma-boardman/monorepo-sandbox/commit/ecbf8c5f32b256780067af903fef861b55525702) Thanks [@emma-boardman](https://github.com/emma-boardman)! - Test
+
+- [#10](https://github.com/emma-boardman/monorepo-sandbox/pull/10) [`d314d4e`](https://github.com/emma-boardman/monorepo-sandbox/commit/d314d4e73433a9bf13c721e016a19b47279a9f75) Thanks [@emma-boardman](https://github.com/emma-boardman)! - New buttons
+
+- [#15](https://github.com/emma-boardman/monorepo-sandbox/pull/15) [`1d78c23`](https://github.com/emma-boardman/monorepo-sandbox/commit/1d78c23f4ef7e475ffa1354f3bdd2ca6e7a9d7e1) Thanks [@emma-boardman](https://github.com/emma-boardman)! - Tweak
+
 ## 3.0.2
 
 ### Patch Changes
