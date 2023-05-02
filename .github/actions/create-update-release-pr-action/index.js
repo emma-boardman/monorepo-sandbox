@@ -74,8 +74,6 @@ async function getUncomittedVersionFiles() {
     const status = fileDetails[0];
     const name = fileDetails.pop();
 
-    console.log('name and status', name, status);
-
     return {
       name,
       status,

@@ -19,7 +19,7 @@ async function main() {
     }
   }
 
-  if (!snapshotReleases.length > 0) {
+  if (snapshotReleases.length === 0) {
     core.setFailed(
       'No snapshot releases found. Please run `yarn changeset` to add a changeset.',
     );
