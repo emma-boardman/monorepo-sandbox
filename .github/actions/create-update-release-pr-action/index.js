@@ -149,7 +149,7 @@ function getChangelogFileContent(fileName) {
 }
 
 
-function getPRDescription() {
+function getPRDescription(versionFiles) {
   const introContent =
     "This PR was opened by the [OSUI Version Package](https://github.com/shopify/online-store-ui/.github/actions/changesets/close-existing-release-pr-action/action.yml) GitHub action. When you're ready to do a release, you can merge this and the packages will be published to npm automatically. If you're not ready to do a release yet, that's fine, whenever you add more changesets to main, a fresh Version Package PR will be created.";
 
