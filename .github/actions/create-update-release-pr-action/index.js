@@ -74,6 +74,8 @@ async function getUncomittedVersionFiles() {
     const status = fileDetails[0];
     const name = fileDetails.pop();
 
+    console.log('name and status', name, status);
+
     return {
       name,
       status,
@@ -89,7 +91,7 @@ function getFileContentForCommit(versionFiles) {
     // Otherwise, capture local file changes for commit
     return {
       ...obj,
-      [name]: status.includes('D') ? null : getFileContent(name),
+      [name]: status === 'D' ? null : getFileContent(name),
     };
   }, {});
 
