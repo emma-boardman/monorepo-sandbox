@@ -126,10 +126,15 @@ function getChangelogFileContent(fileName) {
   const packageNameEndIndex = fileContent.indexOf('\n');
   const packageName = fileContent.substring(packageNameStartIndex, packageNameEndIndex).replace(/[#\n]/g, '');
 
+  console.log('packageName', packageName);
+
   // Capture new version number
   const newVersionNumberStartIndex = fileContent.indexOf('\n## ') + 1;
   const newVersionNumberEndIndex = fileContent.indexOf('\n### ', newVersionNumberStartIndex + 1) + 1;
   const newVersionNumber = fileContent.substring(newVersionNumberStartIndex, newVersionNumberEndIndex).replace(/[#\n]/g, '');
+
+  console.log('packageNumber', newVersionNumber);
+  console.log('packageNumber unstripped', fileContent.substring(newVersionNumberStartIndex, newVersionNumberEndIndex));
 
   // Capture new version changelog content
   const lastVersionIndex =
@@ -140,8 +145,9 @@ function getChangelogFileContent(fileName) {
     isFirstVersion ? fileContent.length - 1 : lastVersionIndex - 1,
   );
 
-  return `##${packageName}@${newVersionNumber}\n\n ----- \n\n ${newVersionContent}\n\n `;
+  return `## ${packageName}@${newVersionNumber} \n\n ----- \n\n ${newVersionContent} \n\n `;
 }
+
 
 function getPRDescription() {
   const introContent =
@@ -161,6 +167,8 @@ function getPRDescription() {
     const {name} = fileDetails;
 
     const fileContent = getChangelogFileContent(name);
+
+    console.log('fileContent', fileContent);
 
     description += fileContent;
   });
