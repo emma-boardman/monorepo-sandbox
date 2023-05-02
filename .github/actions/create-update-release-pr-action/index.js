@@ -119,30 +119,36 @@ function getFileContent(fileName) {
 }
 
 function getChangelogFileContent(fileName) {
-
-  // Need to capture the package name here.
-  console.log('fileName', fileName);
   const fileContent = getFileContent(fileName);
-  console.log('fileContent', fileContent);
 
-  // Package Name
+  // Capture package name 
+  const packageNameStartIndex = fileContent.indexOf('# @');
+  const packageNameEndIndex = fileContent.indexOf('\n');
+  const packageName = fileContent.substring(packageNameStartIndex, packageNameEndIndex).replace(/[#\n]/g, '');
 
-  const packageName = `@shopify/${fileName.split('/')[1]}`;
+  // Capture new version number
+  const newVersionNumberStartIndex = fileContent.indexOf('\n## ') + 1;
+  const newVersionNumberEndIndex = fileContent.indexOf('\n### ', newVersionNumberStartIndex + 1) + 1;
+  const newVersionNumber = fileContent.substring(newVersionNumberStartIndex, newVersionNumberEndIndex).replace(/[#\n]/g, '');
 
-  const newVersionIndex = fileContent.indexOf('\n## ') + 1;
+  // Capture new version changelog content
   const lastVersionIndex =
-    fileContent.indexOf('\n## ', newVersionIndex + 1) - 1;
-  return `${packageName}${fileContent.substring(newVersionIndex, lastVersionIndex)}\n\n ----- `;
+    fileContent.indexOf('\n## ', newVersionNumberEndIndex + 1);
+  const isFirstVersion = lastVersionIndex < 0;
+  const newVersionContent = fileContent.substring(
+    newVersionNumberEndIndex,
+    isFirstVersion ? fileContent.length - 1 : lastVersionIndex - 1,
+  );
+
+  return `##${packageName}@${newVersionNumber}\n\n ----- \n\n ${newVersionContent}\n\n `;
 }
 
-function getPRDescription(versionFiles) {
+function getPRDescription() {
   const introContent =
     "This PR was opened by the [OSUI Version Package](https://github.com/shopify/online-store-ui/.github/actions/changesets/close-existing-release-pr-action/action.yml) GitHub action. When you're ready to do a release, you can merge this and the packages will be published to npm automatically. If you're not ready to do a release yet, that's fine, whenever you add more changesets to main, a fresh Version Package PR will be created.";
 
   let description = `${introContent} \n\n ----- \n`;
 
-  // for each package
-  // find the changelog 
 
   const changelogIdentifier = /CHANGELOG.md/;
   const changelogFiles = versionFiles.filter((fileDetails) => {
@@ -150,17 +156,16 @@ function getPRDescription(versionFiles) {
     return changelogIdentifier.test(name);
   });
 
-  changelogFiles.forEach(function (fileDetails) {
+ 
+  changelogFiles.forEach(function (name) {
     const {name} = fileDetails;
 
     const fileContent = getChangelogFileContent(name);
-
-    console.log('description', description);
-    console.log('file content', fileContent);
 
     description += fileContent;
   });
   return description;
 }
+
 
 main().catch((err) => core.setFailed(err.message));
