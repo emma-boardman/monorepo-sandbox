@@ -145,7 +145,7 @@ function getChangelogFileContent(fileName) {
     isFirstVersion ? fileContent.length - 1 : lastVersionIndex - 1,
   );
 
-  return `## ${packageName}@${newVersionNumber} \n\n ----- \n\n ${newVersionContent} \n\n `;
+  return `## ${packageName}@${newVersionNumber} \n\n ${newVersionContent} \n\n `;
 }
 
 
