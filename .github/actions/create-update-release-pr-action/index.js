@@ -163,9 +163,8 @@ function getPRDescription() {
   });
 
  
-  changelogFiles.forEach(function (name) {
+  changelogFiles.forEach(function (fileDetails) {
     const {name} = fileDetails;
-
     const fileContent = getChangelogFileContent(name);
 
     console.log('fileContent', fileContent);
