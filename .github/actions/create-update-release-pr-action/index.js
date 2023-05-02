@@ -124,14 +124,14 @@ function getChangelogFileContent(fileName) {
   // Capture package name 
   const packageNameStartIndex = fileContent.indexOf('# @');
   const packageNameEndIndex = fileContent.indexOf('\n');
-  const packageName = fileContent.substring(packageNameStartIndex, packageNameEndIndex).replace(/[#\n]/g, '');
+  const packageName = fileContent.substring(packageNameStartIndex, packageNameEndIndex).replace(/[#\n]/g, '').trim();
 
   console.log('packageName', packageName);
 
   // Capture new version number
   const newVersionNumberStartIndex = fileContent.indexOf('\n## ') + 1;
   const newVersionNumberEndIndex = fileContent.indexOf('\n### ', newVersionNumberStartIndex + 1) + 1;
-  const newVersionNumber = fileContent.substring(newVersionNumberStartIndex, newVersionNumberEndIndex).replace(/[#\n]/g, '');
+  const newVersionNumber = fileContent.substring(newVersionNumberStartIndex, newVersionNumberEndIndex).replace(/[#\n]/g, '').trim();
 
   console.log('packageNumber', newVersionNumber);
   console.log('packageNumber unstripped', fileContent.substring(newVersionNumberStartIndex, newVersionNumberEndIndex));
