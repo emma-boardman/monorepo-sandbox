@@ -204,6 +204,8 @@ async function getUncomittedPackageVersionFiles() {
     // Status codes: https://git-scm.com/docs/git-status
     const status = fileDetails[0];
     const name = fileDetails.pop();
+
+    console.log('name and status', name, status);
     if (!status.includes('D')) {
       isModified.push(name);
     }
